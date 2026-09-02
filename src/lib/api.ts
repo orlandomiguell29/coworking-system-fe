@@ -156,7 +156,6 @@ export const api = {
         }
         
         const data: AuthResponse = await response.json();
-        setAuthToken(data.access_token);
 
         return data;
       } catch (error) {
@@ -221,7 +220,7 @@ export const api = {
       if (!token) return null;
 
       try {
-        const response = await fetch(`${API_URL}/auth/me`, {
+        const response = await fetch(`${API_URL}/auth/session`, {
           method: 'GET',
           headers: getHeaders(),
           mode: 'cors',
