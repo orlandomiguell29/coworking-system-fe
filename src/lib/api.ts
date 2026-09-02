@@ -221,7 +221,7 @@ export const api = {
       if (!token) return null;
 
       try {
-        const response = await fetch(`${API_URL}/auth/session`, {
+        const response = await fetch(`${API_URL}/auth/me`, {
           method: 'GET',
           headers: getHeaders(),
           mode: 'cors',
