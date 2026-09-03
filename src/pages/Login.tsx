@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuthStore } from '../lib/store';
-import { Building2, User } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +11,9 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAuthStore();
+  
+  // Extraer setToken junto a setUser de Zustand
+  const { setUser, setToken } = useAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,13 @@ export default function Login() {
       console.log(data);
       if (data && data.user) {
         setUser(data.user);
-        // Redirigir al usuario a la página que intentaba acceder o a /spaces por defecto
+        
+        // Guardar el JWT para persistir la sesión al cambiar de ruta
+        if (data.access_token) {
+          setToken(data.access_token);
+          localStorage.setItem('auth_token', data.access_token);
+        }
+
         const from = location.state?.from?.pathname || '/spaces';
         navigate(from, { replace: true });
       } else {
