@@ -12,8 +12,8 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // Extraer setToken junto a setUser de Zustand
-  const { setUser, setToken } = useAuthStore();
+  // Extraer solo setUser que sí existe en tu store
+  const { setUser } = useAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,14 +22,14 @@ export default function Login() {
 
     try {
       const data = await api.auth.login({ email, password });
-      console.log(data);
+      
       if (data && data.user) {
         setUser(data.user);
         
-        // Guardar el JWT para persistir la sesión al cambiar de ruta
+        // Guardar el token directamente en localStorage
         if (data.access_token) {
-          setToken(data.access_token);
           localStorage.setItem('auth_token', data.access_token);
+          localStorage.setItem('token', data.access_token);
         }
 
         const from = location.state?.from?.pathname || '/spaces';
