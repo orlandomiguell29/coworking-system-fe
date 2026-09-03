@@ -336,13 +336,14 @@ export const api = {
 
         const data = await response.json();
         
-        // Mapeo explicito de snake_case a camelCase para evitar el TypeError en el renderizado
+        // Mapeo explicito de snake_case a camelCase e inyección de fallback seguro para space
         return data.map((b: any) => ({
           ...b,
           startTime: b.startTime || b.start_time,
           endTime: b.endTime || b.end_time,
           totalPrice: b.totalPrice || b.total_price,
           spaceId: b.spaceId || b.space_id,
+          space: b.space || { name: 'Espacio no asignado', location: '' }
         }));
       } catch (error) {
         console.error('Error fetching bookings:', error);
