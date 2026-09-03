@@ -1,10 +1,8 @@
-// Detecta si la variable viene vacía o como texto "undefined"
 const rawUrl = import.meta.env.VITE_API_URL;
 const BASE_URL = (rawUrl && rawUrl !== 'undefined')
   ? rawUrl
   : 'https://inventory-back-767768515623.europe-west1.run.app';
 
-// Elimina barras diagonales al final si las hay
 const API_URL = BASE_URL.replace(/\/+$/, '');
 
 interface LoginCredentials {
@@ -138,7 +136,6 @@ const handleApiError = async (response: Response): Promise<ErrorResponse> => {
   }
 };
 
-// Función auxiliar para garantizar que cualquier fecha sea un string de fecha válido ISO
 const parseValidDate = (dateStr: any): string => {
   if (!dateStr) return new Date().toISOString();
   const d = new Date(dateStr);
@@ -343,7 +340,6 @@ export const api = {
 
         const data = await response.json();
         
-        // Mapeo explicito de snake_case a camelCase con fechas validadas en ISO
         return data.map((b: any) => ({
           ...b,
           startTime: parseValidDate(b.startTime || b.start_time),
