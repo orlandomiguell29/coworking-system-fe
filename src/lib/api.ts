@@ -138,6 +138,13 @@ const handleApiError = async (response: Response): Promise<ErrorResponse> => {
   }
 };
 
+// Función auxiliar para garantizar que cualquier fecha sea un string de fecha válido ISO
+const parseValidDate = (dateStr: any): string => {
+  if (!dateStr) return new Date().toISOString();
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+};
+
 export const api = {
   baseUrl: API_URL,
   getHeaders,
@@ -336,12 +343,13 @@ export const api = {
 
         const data = await response.json();
         
-        // Mapeo explicito de snake_case a camelCase e inyección de fallback seguro para space
+        // Mapeo explicito de snake_case a camelCase con fechas validadas en ISO
         return data.map((b: any) => ({
           ...b,
-          startTime: b.startTime || b.start_time,
-          endTime: b.endTime || b.end_time,
-          totalPrice: b.totalPrice || b.total_price,
+          startTime: parseValidDate(b.startTime || b.start_time),
+          endTime: parseValidDate(b.endTime || b.end_time),
+          createdAt: parseValidDate(b.createdAt || b.created_at),
+          totalPrice: b.totalPrice ?? b.total_price ?? 0,
           spaceId: b.spaceId || b.space_id,
           space: b.space || { name: 'Espacio no asignado', location: '' }
         }));
