@@ -1,4 +1,11 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://inventory-back-767768515623.europe-west1.run.app';
+// Detecta si la variable viene vacía o como texto "undefined"
+const rawUrl = import.meta.env.VITE_API_URL;
+const BASE_URL = (rawUrl && rawUrl !== 'undefined')
+  ? rawUrl
+  : 'https://inventory-back-767768515623.europe-west1.run.app';
+
+// Elimina barras diagonales al final si las hay
+const API_URL = BASE_URL.replace(/\/+$/, '');
 
 interface LoginCredentials {
   email: string;
