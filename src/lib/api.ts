@@ -334,7 +334,16 @@ export const api = {
           throw new Error(error.message);
         }
 
-        return response.json();
+        const data = await response.json();
+        
+        // Mapeo explicito de snake_case a camelCase para evitar el TypeError en el renderizado
+        return data.map((b: any) => ({
+          ...b,
+          startTime: b.startTime || b.start_time,
+          endTime: b.endTime || b.end_time,
+          totalPrice: b.totalPrice || b.total_price,
+          spaceId: b.spaceId || b.space_id,
+        }));
       } catch (error) {
         console.error('Error fetching bookings:', error);
         throw error;
