@@ -144,12 +144,12 @@ export const api = {
   auth: {
     login: async (credentials: LoginCredentials) => {
       try {
-        // Coincide exactamente con los Query Params declarados en auth.py de FastAPI
-        const url = new URL(`${API_URL}/auth/login`);
-        url.searchParams.append('email', credentials.email);
-        url.searchParams.append('password', credentials.password);
+        const params = new URLSearchParams({
+          email: credentials.email,
+          password: credentials.password,
+        });
 
-        const response = await fetch(url.toString(), {
+        const response = await fetch(`${API_URL}/auth/login?${params.toString()}`, {
           method: 'POST',
           headers: getHeaders(false),
           mode: 'cors',
@@ -162,7 +162,6 @@ export const api = {
         
         const data: AuthResponse = await response.json();
 
-        // Guarda el token en memoria y en localStorage
         if (data.access_token) {
           setAuthToken(data.access_token);
         }
@@ -276,11 +275,12 @@ export const api = {
 
     checkAvailability: async (spaceId: string, startTime: string, endTime: string): Promise<boolean> => {
       try {
-        const url = new URL(`${API_URL}/spaces/${spaceId}/availability`);
-        url.searchParams.append('start_time', startTime);
-        url.searchParams.append('end_time', endTime);
+        const params = new URLSearchParams({
+          start_time: startTime,
+          end_time: endTime,
+        });
 
-        const response = await fetch(url.toString(), {
+        const response = await fetch(`${API_URL}/spaces/${spaceId}/availability?${params.toString()}`, {
           method: 'GET',
           headers: getHeaders(),
           mode: 'cors',
