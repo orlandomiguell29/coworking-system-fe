@@ -15,7 +15,7 @@ export default function Login() {
   // Extraer solo setUser que sí existe en tu store
   const { setUser } = useAuthStore();
 
-  const handleLogin = async (e: React.FormEvent) => {
+const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -26,10 +26,12 @@ export default function Login() {
       if (data && data.user) {
         setUser(data.user);
         
-        // Guardar el token directamente en localStorage
+        // REGISTRA EL TOKEN EN EL CLIENTE API Y EN LOCALSTORAGE
         if (data.access_token) {
           localStorage.setItem('auth_token', data.access_token);
-          localStorage.setItem('token', data.access_token);
+          // Si expusiste o importaste setAuthToken o usas api.auth:
+          // Al guardarlo en localStorage con la clave 'auth_token', 
+          // getAuthToken() lo leerá automáticamente en las siguientes peticiones.
         }
 
         const from = location.state?.from?.pathname || '/spaces';
@@ -38,7 +40,7 @@ export default function Login() {
         throw new Error('Error al iniciar sesión. Por favor, intenta de nuevo.');
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error al iniciar sesión. Por favor, intenta de nuevo.');
+      setError(error instanceof Error ? error.message : 'Error al iniciar sesión.');
     } finally {
       setLoading(false);
     }
