@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'https://inventory-back-767768515623.europe-west1.run.app';
 
 interface LoginCredentials {
   email: string;
