@@ -13,6 +13,7 @@ interface RegisterData {
 
 interface AuthResponse {
   user: {
+    id: string;
     email: string;
     full_name?: string;
   };
@@ -25,7 +26,6 @@ interface ErrorResponse {
   statusCode?: number;
 }
 
-//spaces
 interface Space {
   id: string;
   name: string;
@@ -56,7 +56,6 @@ interface BookingUpdateData {
   status?: string;
 }
 
-// Dashboard interfaces
 interface SpaceStats {
   name: string;
   bookings: number;
@@ -79,10 +78,9 @@ interface DashboardMetrics {
   occupancyRate: number;
 }
 
-// Token management
 let authToken: string | null = null;
 
-const setAuthToken = (token: string | null) => {
+export const setAuthToken = (token: string | null) => {
   authToken = token;
   if (token) {
     localStorage.setItem('auth_token', token);
@@ -91,7 +89,7 @@ const setAuthToken = (token: string | null) => {
   }
 };
 
-const getAuthToken = (): string | null => {
+export const getAuthToken = (): string | null => {
   if (!authToken) {
     authToken = localStorage.getItem('auth_token');
   }
@@ -114,33 +112,32 @@ const getHeaders = (includeAuth: boolean = true): HeadersInit => {
   return headers;
 };
 
-// Error handler helper
 const handleApiError = async (response: Response): Promise<ErrorResponse> => {
   try {
     const errorData = await response.json();
     return {
       message: response.status === 401
         ? "Credenciales inválidas. Verifica tu correo y contraseña."
-        : errorData.message || "Error en la operación",
+        : errorData.detail || errorData.message || "Error en la operación",
       statusCode: response.status
     };
   } catch (e) {
     return {
       message: response.status === 405
-        ? "Método no permitido. Por favor, contacta al soporte técnico."
+        ? "Método no permitido."
         : "Error de conexión con el servidor",
       statusCode: response.status
     };
   }
 };
 
-// API client with improved error handling
 export const api = {
   baseUrl: API_URL,
   getHeaders,
   auth: {
     login: async (credentials: LoginCredentials) => {
       try {
+        // Coincide exactamente con los Query Params declarados en auth.py de FastAPI
         const url = new URL(`${API_URL}/auth/login`);
         url.searchParams.append('email', credentials.email);
         url.searchParams.append('password', credentials.password);
@@ -150,6 +147,7 @@ export const api = {
           headers: getHeaders(false),
           mode: 'cors',
         });
+
         if (!response.ok) {
           const error = await handleApiError(response);
           throw new Error(error.message);
@@ -157,8 +155,10 @@ export const api = {
         
         const data: AuthResponse = await response.json();
 
-        // Guardar token en memoria y localStorage
-        setAuthToken(data.access_token);
+        // Guarda el token en memoria y en localStorage
+        if (data.access_token) {
+          setAuthToken(data.access_token);
+        }
 
         return data;
       } catch (error) {
@@ -181,14 +181,16 @@ export const api = {
         
         if (!response.ok) {
           const error = await handleApiError(response);
-          if (response.status === 409) {
+          if (response.status === 409 || response.status === 400) {
             throw new Error('Este correo electrónico ya está registrado');
           }
           throw new Error(error.message);
         }
         
         const authData: AuthResponse = await response.json();
-        setAuthToken(authData.access_token);
+        if (authData.access_token) {
+          setAuthToken(authData.access_token);
+        }
         return authData;
       } catch (error) {
         console.error('Register error:', error);
