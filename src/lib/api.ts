@@ -157,6 +157,9 @@ export const api = {
         
         const data: AuthResponse = await response.json();
 
+        // Guardar token en memoria y localStorage
+        setAuthToken(data.access_token);
+
         return data;
       } catch (error) {
         console.error('Login error:', error);
